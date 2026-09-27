@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OSINT Recon Report — {{ domain }}</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e6e6e6; margin: 0; padding: 2rem; }
+  h1 { color: #4dd0e1; }
+  h2 { color: #81d4fa; border-bottom: 1px solid #2a2f3a; padding-bottom: 0.3rem; margin-top: 2rem; }
+  .meta { color: #9aa4b2; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  section { background: #161a23; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1rem; }
+  pre { white-space: pre-wrap; word-break: break-word; background: #0f1117; padding: 0.75rem; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid #2a2f3a; vertical-align: top; }
+  .skipped { color: #ffb74d; }
+  .error { color: #ef5350; }
+  .badge { display: inline-block; background: #263238; color: #4dd0e1; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+  <h1>OSINT Recon Report</h1>
+  <div class="meta">Target: <span class="badge">{{ domain }}</span> &nbsp;|&nbsp; Generated: {{ generated_at }}</div>
+
+  <section>
+    <h2>WHOIS</h2>
+    <pre>{{ whois | tojson(indent=2) }}</pre>
+  </section>
+
+  <section>
+    <h2>DNS Records</h2>
+    <pre>{{ dns | tojson(indent=2) }}</pre>
+  </section>
+
+  <section>
+    <h2>Subdomains (Certificate Transparency)</h2>
+    <pre>{{ subdomains | tojson(indent=2) }}</pre>
+  </section>
+
+  <section>
+    <h2>Shodan Host Info</h2>
+    <pre>{{ shodan | tojson(indent=2) }}</pre>
+  </section>
+
+  <section>
+    <h2>Breach Exposure (HIBP)</h2>
+    <pre>{{ breach | tojson(indent=2) }}</pre>
+  </section>
+
+  {% if metadata %}
+  <section>
+    <h2>File Metadata</h2>
+    <pre>{{ metadata | tojson(indent=2) }}</pre>
+  </section>
+  {% endif %}
+
+</body>
+</html>
