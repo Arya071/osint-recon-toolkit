@@ -1,5 +1,7 @@
 import requests
 
+MITRE_TECHNIQUE = "T1596.003 - Search Open Technical Databases: Digital Certificates"
+
 CRT_SH_URL = "https://crt.sh/"
 
 
@@ -18,7 +20,7 @@ def run(domain: str) -> dict:
         response.raise_for_status()
         entries = response.json()
     except Exception as exc:
-        return {"error": str(exc), "subdomains": []}
+        return {"error": str(exc), "subdomains": [], "mitre_technique": MITRE_TECHNIQUE}
 
     subdomains = set()
     for entry in entries:
@@ -28,4 +30,8 @@ def run(domain: str) -> dict:
             if name and name.endswith(domain):
                 subdomains.add(name)
 
-    return {"subdomains": sorted(subdomains), "count": len(subdomains)}
+    return {
+        "subdomains": sorted(subdomains),
+        "count": len(subdomains),
+        "mitre_technique": MITRE_TECHNIQUE,
+    }

@@ -1,11 +1,13 @@
 import whois
 
+MITRE_TECHNIQUE = "T1596.002 - Search Open Technical Databases: WHOIS"
+
 
 def run(domain: str) -> dict:
     try:
         data = whois.whois(domain)
     except Exception as exc:
-        return {"error": str(exc)}
+        return {"error": str(exc), "mitre_technique": MITRE_TECHNIQUE}
 
     return {
         "registrar": _stringify(data.get("registrar")),
@@ -14,6 +16,7 @@ def run(domain: str) -> dict:
         "name_servers": _stringify(data.get("name_servers")),
         "org": _stringify(data.get("org")),
         "country": _stringify(data.get("country")),
+        "mitre_technique": MITRE_TECHNIQUE,
     }
 
 

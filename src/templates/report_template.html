@@ -15,35 +15,85 @@
   .skipped { color: #ffb74d; }
   .error { color: #ef5350; }
   .badge { display: inline-block; background: #263238; color: #4dd0e1; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+  .risk-box { padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 1.1rem; }
+  .risk-High { background: #3b1a1a; border: 1px solid #ef5350; }
+  .risk-Medium { background: #3b2f1a; border: 1px solid #ffb74d; }
+  .risk-Low { background: #1a2f3b; border: 1px solid #4dd0e1; }
+  .risk-Informational { background: #1a2a1a; border: 1px solid #66bb6a; }
+  .mitre { color: #9aa4b2; font-size: 0.8rem; font-style: italic; margin-top: 0.5rem; }
 </style>
 </head>
 <body>
   <h1>OSINT Recon Report</h1>
   <div class="meta">Target: <span class="badge">{{ domain }}</span> &nbsp;|&nbsp; Generated: {{ generated_at }}</div>
 
+  {% if risk_summary %}
+  <div class="risk-box risk-{{ risk_summary.level }}">
+    <strong>Risk Summary: {{ risk_summary.level }} ({{ risk_summary.score }}/100)</strong>
+    {% if risk_summary.findings %}
+    <ul>
+      {% for finding in risk_summary.findings %}
+      <li>{{ finding }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No notable risk indicators from the modules run.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <section>
     <h2>WHOIS</h2>
     <pre>{{ whois | tojson(indent=2) }}</pre>
+    {% if whois.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ whois.mitre_technique }}</div>{% endif %}
   </section>
 
   <section>
     <h2>DNS Records</h2>
     <pre>{{ dns | tojson(indent=2) }}</pre>
+    {% if dns.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ dns.mitre_technique }}</div>{% endif %}
   </section>
 
   <section>
     <h2>Subdomains (Certificate Transparency)</h2>
     <pre>{{ subdomains | tojson(indent=2) }}</pre>
+    {% if subdomains.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ subdomains.mitre_technique }}</div>{% endif %}
+  </section>
+
+  <section>
+    <h2>Security Headers</h2>
+    <pre>{{ security_headers | tojson(indent=2) }}</pre>
+    {% if security_headers.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ security_headers.mitre_technique }}</div>{% endif %}
+  </section>
+
+  <section>
+    <h2>Technology Fingerprint</h2>
+    <pre>{{ tech_fingerprint | tojson(indent=2) }}</pre>
+    {% if tech_fingerprint.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ tech_fingerprint.mitre_technique }}</div>{% endif %}
+  </section>
+
+  <section>
+    <h2>TLS Certificate</h2>
+    <pre>{{ tls | tojson(indent=2) }}</pre>
+    {% if tls.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ tls.mitre_technique }}</div>{% endif %}
+  </section>
+
+  <section>
+    <h2>Wayback Machine History</h2>
+    <pre>{{ wayback | tojson(indent=2) }}</pre>
+    {% if wayback.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ wayback.mitre_technique }}</div>{% endif %}
   </section>
 
   <section>
     <h2>Shodan Host Info</h2>
     <pre>{{ shodan | tojson(indent=2) }}</pre>
+    {% if shodan.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ shodan.mitre_technique }}</div>{% endif %}
   </section>
 
   <section>
     <h2>Breach Exposure (HIBP)</h2>
     <pre>{{ breach | tojson(indent=2) }}</pre>
+    {% if breach.mitre_technique %}<div class="mitre">MITRE ATT&CK: {{ breach.mitre_technique }}</div>{% endif %}
   </section>
 
   {% if metadata %}

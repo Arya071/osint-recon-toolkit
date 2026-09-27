@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -9,7 +9,7 @@ TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 def generate(domain: str, results: dict, output_dir: Path) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     safe_domain = domain.replace("/", "_")
 
     json_path = output_dir / f"{safe_domain}_{timestamp}.json"
@@ -19,7 +19,7 @@ def generate(domain: str, results: dict, output_dir: Path) -> tuple[Path, Path]:
     template = env.get_template("report_template.html")
     html = template.render(
         domain=domain,
-        generated_at=datetime.now(timezone.utc).isoformat(),
+        generated_at=datetime.now(UTC).isoformat(),
         **results,
     )
     html_path = output_dir / f"{safe_domain}_{timestamp}.html"

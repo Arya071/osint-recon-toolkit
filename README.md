@@ -1,24 +1,44 @@
-# OSINT Recon Tool
+# OSINT Recon Toolkit
 
 A passive OSINT reconnaissance tool that aggregates public information about a
-**domain or organization** into a single report — the same kind of recon a
-penetration tester or red teamer performs before an engagement in the
-reconnaissance phase.
+**domain or organization** into a single risk-scored report — the same kind
+of recon a penetration tester or red teamer performs in the reconnaissance
+phase of an engagement.
 
 ## What it does
 
-| Module | Source | What it gathers |
-|---|---|---|
-| WHOIS | WHOIS registries | Registrar, creation/expiry dates, org, name servers |
-| DNS recon | Public DNS | A/AAAA/MX/NS/TXT/SOA/CNAME records |
-| Subdomain enumeration | [crt.sh](https://crt.sh) certificate transparency logs | Subdomains seen in issued TLS certificates |
-| Shodan host lookup | [Shodan](https://www.shodan.io) API | Open ports, services, known CVEs on the resolved IP |
-| Breach exposure | [Have I Been Pwned](https://haveibeenpwned.com) API | Known breaches for a given email |
-| Metadata extraction | Local files you supply | EXIF (images) / document info (PDFs) |
+| Module | Source | What it gathers | MITRE ATT&CK |
+|---|---|---|---|
+| WHOIS | WHOIS registries | Registrar, creation/expiry dates, org, name servers | T1596.002 |
+| DNS recon | Public DNS | A/AAAA/MX/NS/TXT/SOA/CNAME records | T1590.002 |
+| Subdomain enumeration | [crt.sh](https://crt.sh) certificate transparency logs | Subdomains seen in issued TLS certificates | T1596.003 |
+| Security headers | Target's own homepage | Missing HSTS/CSP/X-Frame-Options/etc. | T1592.002 |
+| Technology fingerprint | Target's own homepage | Server, CMS/framework signatures | T1592.002 |
+| TLS certificate inspection | TLS handshake | Issuer, expiry, protocol version, SANs | T1596.003 |
+| Wayback Machine history | [web.archive.org](https://web.archive.org) | Historical snapshots of the domain | T1593.002 |
+| Shodan host lookup | [Shodan](https://www.shodan.io) API | Open ports, services, known CVEs on the resolved IP | T1596.005 |
+| Breach exposure | [Have I Been Pwned](https://haveibeenpwned.com) API | Known breaches for a given email | T1589.001 |
+| Metadata extraction | Local files you supply | EXIF (images) / document info (PDFs) | — |
 
-Everything is passive: it only reads public data sources and never sends
-traffic to the target's own infrastructure (no port scanning, no active
-probing).
+Every finding is tagged with the [MITRE ATT&CK](https://attack.mitre.org/)
+reconnaissance technique it maps to, and a **risk-scoring module**
+(`src/risk_scoring.py`) aggregates findings (expiring/broken TLS, missing
+security headers, known CVEs, breach exposure, large subdomain footprint)
+into a Low/Medium/High summary at the top of every report.
+
+Everything is passive: it only reads public data sources and the target's
+own publicly served homepage — no port scanning, no active probing.
+
+## Engineering notes
+
+- **Concurrent execution** — independent network-bound modules run in a
+  thread pool (`concurrent.futures.ThreadPoolExecutor`) rather than
+  sequentially.
+- **Tests** — 15 unit tests (`pytest`) covering every module's happy path and
+  failure handling, with HTTP calls mocked via `responses` (no real network
+  access needed to run the suite).
+- **CI** — GitHub Actions runs lint (`ruff`) and the test suite on every push.
+- **Docker** — `Dockerfile` for running the tool without a local Python setup.
 
 ## Scope and ethics
 
@@ -47,19 +67,36 @@ python src/main.py --domain example.com --files photo.jpg doc.pdf
 python src/main.py --domain example.com --skip-shodan
 ```
 
-Reports are written to `reports/` as both JSON and a styled HTML file.
+Reports are written to `reports/` as both JSON and a styled HTML file, with a
+risk-level banner at the top.
+
+### Docker
+
+```bash
+docker build -t osint-recon-toolkit .
+docker run --rm -v "$(pwd)/reports:/app/reports" osint-recon-toolkit --domain example.com
+```
+
+### Running tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
+ruff check src tests
+```
 
 ## Why this project
 
 Recon is the first phase of any real security assessment or red-team
-engagement. This tool consolidates several recon techniques (WHOIS, DNS,
-certificate transparency, exposed-service lookup, breach exposure) that are
-normally run as separate manual steps into one repeatable report — the same
-workflow tools like `theHarvester` and `Recon-ng` are built around, scoped
-down to something small enough to read end-to-end in an afternoon.
+engagement. This tool consolidates recon techniques (WHOIS, DNS, certificate
+transparency, header/tech fingerprinting, TLS inspection, historical content
+discovery, exposed-service lookup, breach exposure) that are normally run as
+separate manual steps into one repeatable, risk-scored report — mapped to
+MITRE ATT&CK so findings tie back to a recognized framework, and tested/CI'd
+like production code rather than a one-off script.
 
 ## Roadmap ideas
 
-- Feed subdomain/Shodan findings into a vulnerability-scoring pass
 - Export findings directly into a ticketing/SIEM format
-- Add Wayback Machine lookups for historical exposed content
+- Add async I/O instead of threads for higher module concurrency
+- PDF report export

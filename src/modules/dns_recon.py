@@ -1,16 +1,19 @@
 import dns.resolver
 
+MITRE_TECHNIQUE = "T1590.002 - Gather Victim Network Information: DNS"
+
 RECORD_TYPES = ["A", "AAAA", "MX", "NS", "TXT", "SOA", "CNAME"]
 
 
 def run(domain: str) -> dict:
-    results = {}
+    records = {}
     for record_type in RECORD_TYPES:
         try:
             answers = dns.resolver.resolve(domain, record_type)
-            results[record_type] = [answer.to_text() for answer in answers]
+            records[record_type] = [answer.to_text() for answer in answers]
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
-            results[record_type] = []
+            records[record_type] = []
         except Exception as exc:
-            results[record_type] = [f"error: {exc}"]
-    return results
+            records[record_type] = [f"error: {exc}"]
+    records["mitre_technique"] = MITRE_TECHNIQUE
+    return records
