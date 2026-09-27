@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import dns.resolver
 
-from modules import dns_recon
+from osint_recon_toolkit.modules import dns_recon
 
 
 def _answer(text):
@@ -11,7 +11,7 @@ def _answer(text):
     return mock
 
 
-@patch("modules.dns_recon.dns.resolver.resolve")
+@patch("osint_recon_toolkit.modules.dns_recon.dns.resolver.resolve")
 def test_collects_records_per_type(mock_resolve):
     def side_effect(domain, record_type):
         if record_type == "A":

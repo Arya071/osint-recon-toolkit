@@ -2,11 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml README.md ./
+COPY osint_recon_toolkit/ ./osint_recon_toolkit/
+RUN pip install --no-cache-dir .
 
-COPY src/ ./src/
-
-WORKDIR /app/src
-ENTRYPOINT ["python", "main.py"]
+WORKDIR /data
+ENTRYPOINT ["osint-recon"]
 CMD ["--help"]

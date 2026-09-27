@@ -22,9 +22,9 @@ phase of an engagement.
 
 Every finding is tagged with the [MITRE ATT&CK](https://attack.mitre.org/)
 reconnaissance technique it maps to, and a **risk-scoring module**
-(`src/risk_scoring.py`) aggregates findings (expiring/broken TLS, missing
-security headers, known CVEs, breach exposure, large subdomain footprint)
-into a Low/Medium/High summary at the top of every report.
+(`osint_recon_toolkit/risk_scoring.py`) aggregates findings (expiring/broken
+TLS, missing security headers, known CVEs, breach exposure, large subdomain
+footprint) into a Low/Medium/High summary at the top of every report.
 
 Everything is passive: it only reads public data sources and the target's
 own publicly served homepage — no port scanning, no active probing.
@@ -51,38 +51,60 @@ own publicly served homepage — no port scanning, no active probing.
 - API keys (Shodan, HIBP) are read from a local `.env` file and are never
   committed.
 
-## Setup
+## Install
+
+One-line install straight from GitHub, no cloning required. [pipx](https://pipx.pypa.io)
+is recommended — it installs the CLI into its own isolated environment so it
+doesn't clash with other Python projects:
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env   # then fill in SHODAN_API_KEY / HIBP_API_KEY (optional)
+pipx install git+https://github.com/Arya071/osint-recon-toolkit.git
+```
+
+No pipx? Plain pip works too:
+
+```bash
+pip install git+https://github.com/Arya071/osint-recon-toolkit.git
+```
+
+Either way, you now have an `osint-recon` command on your PATH.
+
+(Optional) Add API keys for the Shodan/HIBP modules — create a `.env` file in
+whatever directory you run the tool from:
+
+```
+SHODAN_API_KEY=your_key_here
+HIBP_API_KEY=your_key_here
 ```
 
 ## Usage
 
 ```bash
-python src/main.py --domain example.com
-python src/main.py --domain example.com --email you@example.com
-python src/main.py --domain example.com --files photo.jpg doc.pdf
-python src/main.py --domain example.com --skip-shodan
+osint-recon --domain example.com
+osint-recon --domain example.com --email you@example.com
+osint-recon --domain example.com --files photo.jpg doc.pdf
+osint-recon --domain example.com --skip-shodan
 ```
 
-Reports are written to `reports/` as both JSON and a styled HTML file, with a
-risk-level banner at the top.
+Reports are written to `reports/` (in your current directory) as both JSON
+and a styled HTML file, with a risk-level banner at the top.
 
 ### Docker
 
 ```bash
 docker build -t osint-recon-toolkit .
-docker run --rm -v "$(pwd)/reports:/app/reports" osint-recon-toolkit --domain example.com
+docker run --rm -v "$(pwd)/reports:/data/reports" osint-recon-toolkit --domain example.com
 ```
 
-### Running tests
+### Developing / running tests
 
 ```bash
+git clone https://github.com/Arya071/osint-recon-toolkit.git
+cd osint-recon-toolkit
+pip install -e .
 pip install -r requirements-dev.txt
 pytest tests/ -v
-ruff check src tests
+ruff check osint_recon_toolkit tests
 ```
 
 ## Why this project

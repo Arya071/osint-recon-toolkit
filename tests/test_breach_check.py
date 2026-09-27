@@ -1,6 +1,6 @@
 import responses
 
-from modules import breach_check
+from osint_recon_toolkit.modules import breach_check
 
 
 def test_skips_without_api_key():

@@ -1,6 +1,6 @@
 import responses
 
-from modules import tech_fingerprint
+from osint_recon_toolkit.modules import tech_fingerprint
 
 
 @responses.activate

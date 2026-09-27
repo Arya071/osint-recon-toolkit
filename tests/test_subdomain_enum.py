@@ -1,6 +1,6 @@
 import responses
 
-from modules import subdomain_enum
+from osint_recon_toolkit.modules import subdomain_enum
 
 
 @responses.activate

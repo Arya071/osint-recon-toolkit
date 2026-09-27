@@ -1,6 +1,6 @@
 import responses
 
-from modules import security_headers
+from osint_recon_toolkit.modules import security_headers
 
 
 @responses.activate

@@ -1,4 +1,4 @@
-from risk_scoring import score
+from osint_recon_toolkit.risk_scoring import score
 
 
 def test_no_findings_is_informational():

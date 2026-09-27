@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from modules import (
+from .modules import (
     breach_check,
     dns_recon,
     metadata_extractor,
@@ -18,10 +18,10 @@ from modules import (
     wayback_lookup,
     whois_lookup,
 )
-from report_generator import generate
-from risk_scoring import score
+from .report_generator import generate
+from .risk_scoring import score
 
-REPORTS_DIR = Path(__file__).parent.parent / "reports"
+REPORTS_DIR = Path.cwd() / "reports"
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 log = logging.getLogger("osint-recon")

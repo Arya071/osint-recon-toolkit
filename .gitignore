@@ -6,3 +6,8 @@ venv/
 reports/*.html
 reports/*.json
 !reports/.gitkeep
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
